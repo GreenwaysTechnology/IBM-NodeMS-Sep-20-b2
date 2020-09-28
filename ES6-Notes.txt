@@ -1,0 +1,1069 @@
+JAVA SCRIPT:
+
+java script is object based, functional style,event driven , async programming language.
+
+object oriented vs object based:
+
+Object Oriented Principles:
+...........................
+
+1.Abstraction
+2.Encapsulation
+3.Hierarchy
+4.Typing
+5.Modularity
+----------------------
+6.Concurrency
+7.Persistency
+
+pure functional vs functional style
+
+event driven programming is extension of oo
+
+async programming is extension of concurrency.
+
+
+version
+ECMA -Committe
+1996---1997
+java script 1.0 - ES 1.0
+
+ES 3.0 -1999
+
+ES 4.0 2007
+
+ES 5.0 2008
+
+ES 6.0 -2015
+......................
+ES 7.0
+
+8.0
+
+Applications of java script :
+
+Why js was created?
+
+ to create dynamic web documents and manipulate web documents- HTML
+
+2008- js started moving towards building network applications.-nodejs
+
+Now javascript is every where.
+
+Learning path:
+
+es 6:
+
+1. java  script fundamentals
+2. java script functional programming 
+3. Object based features and implementation
+----------------------------------------------
+4. DOM 
+5. NETWORK Progamming - ajax
+etc....
+
+
+javascript runtime :
+
+where you are running javascript code.
+
+1. embeded runtime.
+   the runtime embeded into another software.
+ browser
+v8-name of the runtime, inside chrome.
+
+2.standalone runtime.
+
+  node js -v8.
+
+
+1. java  script fundamentals
+
+variable,types, values.
+
+javascript is untyped/dyamic typed language.
+
+keyword variableName=value(literals)
+
+var | let | const | this | variablename=literal
+
+var-es5
+let and const -es6 to replace var.
+
+this - for object variables
+
+literals - values: based on literal only the type of variable is decided during runtime.
+
+types of literals
+
+1.string
+2.number
+3.boolean
+4.undefined
+5.nan
+6.infinity
+7.null
+8.function
+9.object
+
+types ;
+
+1.string
+2.number
+3.boolean
+4.undefined
+5.funciton
+6.object
+
+
+//strings
+/**
+ * let is keyword
+ * firstName is variable
+ * 'subramanian' is literal - string literal
+ * string literals are declareding using '' "" ``(back tick)
+ */
+let firstName='Subramanian'
+console.log("First name" + firstName)
+console.log('First name' + firstName)
+//${} string interpolation
+console.log(`First name ${firstName}`)
+let title ='IBM'
+//multi line strings 
+let document=`
+        <html>
+            <head>
+                <title>
+                      ${title}
+                </title>
+            </head>
+            <body>
+            </body>
+        </html>
+`
+console.log(document);
+
+Numbers:
+numbers : 64 bit double.
+
+
+//number ; its size is 64 bit aka double.
+
+let salary =100;
+let qty =1999;
+let totalsalary = salary * 100
+console.log(`salary ${salary} Qty ${qty} TotalSalary ${totalsalary}`)
+
+
+//booleans ; true or false i bit
+
+let isActive = true;
+let isEnabled = false;
+console.log(`Is Active ${isActive}`)
+console.log(`Is Enabled ${isEnabled}`)
+
+
+/**
+ * undefined ; if variable is declared not intialized with
+ * any valid value
+ */
+let name;
+let qty;
+let foo;
+
+console.log(`${name} ${qty} ${foo}`)
+
+
+
+
+NaN :
+not a number , which is number which holds numerical computation
+error results.
+Nan if you get, your code is buggy code : runtime 
+
+if you get nan you must fix it.
+
+When you will get NaN?
+
+use case 1; when you do compuation against undefined.
+
+let qty;
+let price = 1000;
+let totalPrice = qty * price;
+
+
+//NaN - Not a number, it error code
+let qty;
+let price = 1000;
+let totalPrice = qty * price;
+console.log(`Total Price ${totalPrice}`)
+
+//use case ; during type conversion ; string to number
+
+//type conversion
+
+//salary  is string
+let salary = "1000"
+//totalworkings are number
+let totalworkingdays = 13;
+// salary *  totalworkingdays = string is converted into number then ,computation starts
+//conversion happens auotmattically; impilicit conversion
+let totalSalary = salary * totalworkingdays;
+
+//using coversion apis - parseXX
+//explicit conversion
+let totalSalary2 = parseInt(salary) * totalworkingdays
+console.log(`Total Salary ${totalSalary}`)
+console.log(`Total Salary ${totalSalary2}`)
+
+//type conversion error;
+
+let age = "$18"
+let policyvalue = 1200;
+let maturevalue = policyvalue * age
+console.log(`Total maturevalue ${maturevalue}`)
+maturevalue = parseInt(age) * policyvalue;
+console.log(`Total maturevalue ${maturevalue}`)
+
+//ininfity
+
+let total =  100 /0;
+console.log(`Total ${total}`)
+
+
+Advanced booleans
+
+/**
+ * Truthy values:
+ *  In javascript everything is true execpt the following values
+ * 
+ * fasly values
+ *  1.boolean false
+ *  2.Empty string "" ,''
+ *  3.0
+ *  4.undefined
+ *  5.NaN
+ *  6.null
+
+ **/
+let isActive = true;
+if (isActive) {
+    console.log('active')
+} else {
+    console.log('in active')
+}
+let start = 0;
+if (start) {
+    console.log('start')
+} else {
+    console.log('not start')
+}
+
+
+
+Opeartors:
+.........
+
+ == , === !=,!==,!,!!
+
+ == : compares based content only, it does not take care about type system.
+
+if you compare only value, then it is not right comparsion.
+
+== consider buggy operator.
+
+=== : compares both value + type : this is right comparsion:
+
+Best practice : dont use == for comparsion.
+
+!= : dont use
+!== : use
+
+    //operators
+
+    let a = 10;
+    let b = 10;
+
+    if (a == b) {
+        console.log('equal')
+    } else {
+        console.log('not equal')
+    }
+
+    let x = "10";
+    let y = 10;
+
+    //string==number =true
+    if (x === y) {
+        console.log('equal')
+    } else {
+        console.log('not equal')
+    }
+
+let vs const
+............
+//let and var both are same ; it can be reinitalized
+
+let a = 10;
+console.log(a);
+a = 20;
+console.log(a);
+a = true;
+console.log(a);
+
+const b = 10;
+console.log(b);
+//b = 89;
+
+
+
+let a =10;
+let name="subramanian";
+let isWorking =true;
+let price;
+let totalPrice = price *10
+let avg = 100 /0;
+function foo(){
+    console.log('foo')
+}
+//knowing the type of variable or literal
+//typeof - operator - returns type in string result
+console.log(typeof a);
+console.log(typeof name);
+console.log(typeof isWorking);
+console.log(typeof price);
+console.log(typeof totalPrice);
+console.log(typeof avg);
+console.log(typeof null);
+console.log(typeof foo);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+js functional style features:
+
+- function is abstraction in js.
+- function is value/literal
+    - can be assigned to a variable
+    - can be passed a parameter 
+    - can be returned as return value.
+
+
+basic function declaration
+//how to declare functions
+
+function sayHello() {
+    //funciton body
+    console.log('sayHello')
+}
+//how to invoke function
+sayHello();
+
+//every function takes args and return value
+//a , b is args
+//default args
+function add(a = 0, b = 0) {
+    let result = a + b;
+    console.log(result);
+}
+//parameters -10,10
+add(10, 10)
+let x = 10;
+let y = 10;
+add(x, y);
+//undefined,undefined
+add();
+add(90);
+add(undefined, 80);
+
+//return value;
+
+function getName() {
+    return 'Subramanian';
+}
+console.log(getName())
+function getAge() {
+    let age = 18;
+    return age;
+}
+console.log(getAge())
+function calculate(a = 1, b = 1) {
+    return a + b;
+}
+console.log(calculate(12, 12))
+
+function status() {
+    return; //undefined
+}
+console.log(status())
+
+function login(username = 'admin', password = 'admin') {
+    if (username === 'admin' && password === 'admin') {
+        return true;
+    }
+    return;
+}
+
+if (login()) {
+    console.log('login success')
+} else {
+    console.log('login failed')
+}
+if (login('admin', 'foo')) {
+    console.log('login success')
+} else {
+    console.log('login failed')
+}
+//use tenary operator to replace if
+login() ? console.log('login success') : console.log('login failed')
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.>>
+
+function as literal(value)
+
+let a =10;
+a is variable
+10 is literal(value).
+
+since function as a value, that  can be stored
+  inside a variable
+  can be passed as parameter to another function
+  can be returned from another another
+
+if funciton is stored in a variable, that variable can be used to invoke that function.
+  
+//function as literal-store inside variable
+//function declaration
+//way -1
+function sayHello(name = 'foo') {
+    console.log(`hello ${name}`)
+    return 'greeter'
+}
+let hello = sayHello;
+let res = hello('ram');
+console.log(res)
+
+//way 2; anonmous function
+let add = function (a = 1, b = 1) {
+    console.log(`add ${a + b}`)
+    return a + b;
+};
+let result
+result = add();
+console.log(result);
+result = add(12, 12);
+console.log(result);
+
+
+////////////////////
+//how to pass function as parameter to another function;
+
+function add(a, b) {
+    let result = a + b;
+    console.log(result)
+}
+//pass inline direct values
+add(10, 10);
+let x = 10;
+let y = 20;
+add(x, y);
+
+//function as parameter
+function handle(handler) {
+    handler();
+}
+let socketHandler = function () {
+    console.log('socket handler')
+};
+handle(socketHandler);
+handle(function () {
+    console.log('socket handler')
+});
+
+//function as parameter with args and parameters
+
+function requestHandler(handle) {
+    let fakeResponse = 'Hey, this is fake response!!!';
+    let status = handle(fakeResponse);
+    status ? console.log('response committed') : console.log('response commit failed')
+}
+
+let httpHandler = function (response) {
+    console.log(response)
+    return true;
+};
+requestHandler(httpHandler);
+requestHandler(function (response) {
+    console.log(response)
+    return true;
+});
+
+//function as return
+
+// function counter(){
+
+//     console.log('outer inc')
+//     //inner function
+//     function inc(){
+//          console.log('inner inc')
+//     }
+//     //call inner function
+//     inc()
+
+// }
+
+//return inc 
+function counter() {
+
+    console.log('outer inc')
+    //inner function
+    // function inc(){
+    //      console.log('inner inc')
+    // }
+    // return inc;
+    // return function inc() {
+    //     console.log('inner inc')
+    // }
+    return function (a) {
+        console.log('inner inc', a)
+        return a * 10;
+    }
+
+}
+let incresult = counter();
+let incvalue= incresult(10)
+console.log(incvalue)
+//simplified version
+
+console.log(counter()(20))
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Arrow functions;
+
+ES 6 ARROW functions are replacment of function declaration syntax in es 5.
+
+let hello = function(message = 'default') {
+    console.log('greet', message)
+    return 'greeter';
+};
+console.log(hello('hello'))
+
+
+//arrow funcitons
+
+let sayHello;
+
+//es 5 declaration
+sayHello = function () {
+    console.log('Hello')
+};
+sayHello();
+//es 6 arrow style declaration;
+sayHello = () => {
+    console.log('Hello')
+};
+sayHello();
+//if function has one line of body;remove {}
+sayHello = () => console.log('Hello')
+sayHello();
+//args and parameters; multi args
+let add;
+add = (a = 1, b = 1) => {
+    let c = a + b;
+    console.log(c);
+};
+add(10, 10)
+add = (a = 1, b = 1) => console.log(a + b);
+add(10, 10);
+//single arg without default value;remove()
+let getValue;
+getValue = a => console.log(a);
+getValue(10);
+
+//arrow and return values;
+let multiply;
+multiply = (a = 1, b = 1) => {
+    let c = a * b;
+    return c;
+};
+console.log(multiply())
+//body has only return statement; remove {} and return statement
+multiply = (a = 1, b = 1) => a * b;
+console.log(multiply())
+
+//single parameter , return the same, no default value;
+let getStock = value => value;
+console.log(getStock(12))
+///////////////////////////////////////////////////////////////////////////////////
+
+let handle = handler => handler();
+let socketHandler = () => console.log('socket handler')
+handle(socketHandler);
+handle(() => console.log('socket handler'));
+
+
+const requestHandler = handle => {
+    let fakeResponse = 'Hey, this is fake response!!!';
+    let status = handle(fakeResponse);
+    status ? console.log('response committed') : console.log('response commit failed')
+}
+
+let httpHandler = response => {
+    console.log(response)
+    return true;
+};
+requestHandler(httpHandler);
+requestHandler((response) => {
+    console.log(response)
+    return true;
+});
+///////////////////////////////////////////////////////////////////
+const counter = () => {
+    console.log('outer inc')
+    return a => {
+        console.log('inner inc', a)
+        return a * 10;
+    };
+}
+console.log(counter()(20))
+
+let myfunction;
+myfunction = function (value1) {
+    return function (value2) {
+        return function (value3) {
+            return function (value4) {
+                return value1 * value2 * value3 * value4;
+            }
+        }
+    }
+};
+console.log(myfunction(1)(2)(3)(4))
+
+
+//arrow version of above
+myfunction = value1 => {
+    return value2 => {
+        return value3 => {
+            return value4 => {
+                return value1 * value2 * value3 * value4;
+            }
+        }
+    }
+};
+console.log(myfunction(1)(2)(3)(4))
+
+myfunction = value1 => value2 => value3 => value4 => value1 * value2 * value3 * value4;
+console.log(myfunction(1)(2)(3)(4))
+
+//state initalization ;
+//hard coded way
+//after object creation using reference variable
+//constructor parameters
+
+function Employee(id = 1, firstName = 'Subramanian', active = false) {
+    //instance variables
+    this.id = id //1;
+    this.firstName = firstName //'subramaian'
+    this.active = active//true;
+    //instance methods
+    this.calculateSalary = function () {
+        return 1000 * 23;
+    }
+}
+
+let emp = null;
+
+emp = new Employee();
+console.log(emp.id)
+console.log(emp.firstName)
+console.log(emp.active)
+console.log(emp.calculateSalary())
+//state initalization
+emp.id = 9999;
+emp.firstName = 'ram';
+emp.active = false
+console.log(emp.id)
+console.log(emp.firstName)
+console.log(emp.active)
+
+
+emp = new Employee(34, 'karthik', true);
+console.log(emp.id)
+console.log(emp.firstName)
+console.log(emp.active)
+console.log(emp.calculateSalary())
+
+class Customer {
+    //constructor 
+    constructor(id = 1, firstName = 'Subramanian') {
+        //instance variable
+        this.id = id//1;
+        this.firstName = firstName;//'subramaian'
+
+    }
+    //methods
+    calculateInvoice() {
+        return 1000;
+    }
+
+}
+
+let cust =null;
+cust = new Customer();
+console.log(cust.id)
+console.log(cust.firstName)
+console.log(cust.calculateInvoice())
+cust.id = 99999;
+cust.firstName = 'john'
+console.log(cust.id)
+console.log(cust.firstName)
+
+cust = new Customer(34545,'foo');
+console.log(cust.id)
+console.log(cust.firstName)
+
+
+
+Objects:
+How to create objects
+->constructor pattern
+->literal pattern
+
+instance variables,methods.
+//constructor pattern
+//-using es 5 pattern - functon
+//using es 6 classes
+function Employee() {
+    //instance variables
+    this.id = 1;
+    this.firstName = 'subramaian'
+    this.active = true;
+    //instance methods
+    this.calculateSalary = function () {
+        return 1000 * 23;
+    }
+}
+//create object
+//emp is reference variable
+//new is operator to create object
+//Employee() -constructor call
+let emp = new Employee();
+console.log(emp.id)
+console.log(emp.firstName)
+console.log(emp.active)
+console.log(emp.calculateSalary())
+
+//es 6 class
+class Customer {
+    //instance variable
+    id = 1;
+    firstName = 'subramaian'
+    //methods
+    calculateInvoice() {
+        return 1000;
+    }
+
+}
+let cust=new Customer();
+console.log(cust.id)
+console.log(cust.firstName)
+console.log(cust.calculateInvoice())
+
+//object relationship ; is-a,has-a
+
+class Order {
+    constructor(orderId = 'O001', value = 0) {
+        this.orderId = orderId;
+        this.value = value;
+    }
+}
+
+class Customer {
+    constructor(custId = 'C001', name = 'foo', order = new Order()) {
+        //has-a
+        this.custId = custId;
+        this.name = name;
+        //has-a
+        this.order = order;
+    }
+}
+let customer = null;
+customer = new Customer();
+console.log(customer);
+console.log(customer.custId, customer.name, customer.order.orderId, customer.order.value)
+customer = new Customer('C003', 'subramanian', new Order('O002', 1000));
+console.log(customer);
+console.log(customer.custId, customer.name, customer.order.orderId, customer.order.value)
+/////////////////////////////////////////////////////////////////////////////////
+//inheritance
+
+class Account {
+    constructor(id) {
+        this.id = id;
+        console.log('account')
+    }
+    deposit() {
+        return 100;
+    }
+}
+class SavingsAccount extends Account {
+    constructor(id = 1) {
+        super(id);
+        console.log('SavingsAccount')
+    }
+    deposit() {
+        return 1000 * super.deposit();
+    }
+}
+let sb = new SavingsAccount(12);
+console.log(sb.id, sb.deposit())
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+literal pattern;
+
+
+//literal objects ; key :value
+//value could be any literal
+
+let customer = {
+    id: 1,
+    name: 'subramanian',
+    status: true,
+    //es 5 style
+    // calculateInvoice: function () {
+    //     return 1000;
+    // }
+    //es 6 style;arrow
+    //calculateInvoice: () => 1000
+    //es 6 class style
+    calculateInvoice() {
+        return 1000
+    }
+};
+console.log(customer.id, customer.name, customer.status, customer.calculateInvoice())
+
+//has - a 
+
+let employee = {
+    id: 1,
+    name: 'subramanian',
+    status: true,
+    //has-a , nested object
+    address: {
+      city:'Coimbatore',
+      state:'TN',
+    }
+
+}
+console.log(employee.id, employee.name, employee.status, employee.address.city);
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+Objects :
+
+-dynamic- during runtime , we can add,update,delete,iterate properties.
+
+objects are simply dictionary data structure in js.
+
+this process is called as object augmentation.
+
+
+//object augmentation;
+//empty object
+let cust = {};
+console.log(cust)
+
+//augmenting ; add,update,delete,iterate.
+
+//add
+cust.id = 1;
+cust.name = 'foo'
+cust.city ='coimbatore'
+console.log(cust)
+
+//update ; how update works; js looks whehter property exist, if then update,else 
+// update
+cust.name = 'bar'
+console.log(cust)
+
+//iterate
+for (const key in cust) {
+  console.log(key,cust[key])
+}
+
+//delete 
+delete cust.city
+console.log(cust)
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Object Destrucing:
+..................
+
+
+//object destructuring;
+
+let printEmployee;
+printEmployee = employee => {
+    console.log(`Id : ${employee.id}`);
+    console.log(`name : ${employee.name}`);
+    console.log(`Salary : ${employee.salary}`);
+    console.log(`City : ${employee.address.city}`);
+
+};
+// printEmployee({
+//     id: 1,
+//     name: 'subramaian',
+//     salary: 1000,
+//     address:{
+//         city:'coimbatore'
+//     }
+// })
+//object destrucing syntax; way 1
+printEmployee = employee => {
+    //left {object keys}
+    const { id, name, salary, address } = employee;
+    console.log(`Id : ${id}`);
+    console.log(`name : ${name}`);
+    console.log(`Salary : ${salary}`);
+    console.log(`City : ${address.city}`);
+
+};
+// printEmployee({
+//     id: 1,
+//     name: 'subramaian',
+//     salary: 1000,
+//     address:{
+//         city:'coimbatore'
+//     }
+// })
+//object destrucing syntax; way 2
+printEmployee = ({ id, name, salary, address }) => {
+    console.log(`Id : ${id}`);
+    console.log(`name : ${name}`);
+    console.log(`Salary : ${salary}`);
+    console.log(`City : ${address.city}`);
+
+};
+
+//call function by passing object
+printEmployee({
+    id: 1,
+    name: 'subramaian',
+    salary: 1000,
+    address: {
+        city: 'coimbatore'
+    }
+})
+
+printEmployee = ({ id, name, salary, address: { city } }) => {
+    console.log(`Id : ${id}`);
+    console.log(`name : ${name}`);
+    console.log(`Salary : ${salary}`);
+    console.log(`City : ${city}`);
+
+};
+printEmployee({
+    id: 1,
+    name: 'subramaian',
+    salary: 1000,
+    address: {
+        city: 'coimbatore'
+    }
+})
+//////////////////////////////////////////////////////////////////////////////
+
+class OrderService {
+    constructor() {
+
+    }
+    findAll() {
+        return 'findAll'
+    }
+    save() {
+        return 'save'
+    }
+    remove() {
+        return 'remove'
+    }
+    update() {
+        return 'update'
+    }
+}
+let orderService = new OrderService();
+console.log(orderService.findAll())
+console.log(orderService.save())
+console.log(orderService.remove())
+console.log(orderService.update())
+//dest
+let { findAll, save, remove, update } = new OrderService();
+console.log(findAll())
+console.log(save())
+console.log(remove())
+console.log(update())
+/////////////////////////////////////////////////////////////////////////////////
+
+//return objects
+
+function getStock() {
+    return {
+        id: 1,
+        symbol: 'Goo',
+        qty: 100,
+        price: 10000
+    }
+}
+//arrow
+let getStock1;
+getStock1 = () => {
+    return {
+        id: 1,
+        symbol: 'Goo',
+        qty: 100,
+        price: 10000
+    }
+}
+console.log(getStock1())
+getStock1 = () => ({
+    id: 1,
+    symbol: 'Goo',
+    qty: 100,
+    price: 10000
+});
+console.log(getStock1())
+
+getStock1 = (id = 1, symbol = 'Google', qty = 100, price = 10000) => ({
+    id: id,
+    symbol: symbol,
+    qty: qty,
+    price: price
+});
+console.log(getStock1())
+
+//if key : value ===same; make it one
+getStock1 = (id = 1, symbol = 'Google', qty = 100, price = 10000) => ({
+    id,
+    symbol,
+    qty,
+    price
+});
+console.log(getStock1())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

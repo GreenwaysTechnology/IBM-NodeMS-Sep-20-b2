@@ -1,0 +1,286 @@
+Node :
+
+Java Script modularity;
+.......................
+
+How to create modular application in javascript?
+
+com.ibm.app.Hello.java 
+ com/ibm/app/Hello.java
+ com/ibm/app/Hello.class
+
+javascript has no such fine grained modularity.
+
+js is file based
+
+hello.js, customer.js
+
+js did not address how code can be shared across files.
+
+ Javascript is file based modularity physically
+ but logically there is no such modularity at language level.
+
+ collection of variable declarations and function.
+
+Once js started growing in large scale, dev struck to organize code.
+
+2000, Smart developers started thinking about how to modualrize js code.
+ 
+
+Module design patterns came.
+
+1.Namespace design pattern : 2000 : jquery
+2.AMD -Async Module Defintion : dojo
+---------------------------------------------------------
+3.CJS - Common JS =  namespace + amd
+4.ES 6 Module design pattern  = amd + cjs
+------------------------------------------------------------
+5.System = AMD = CJS + ES 6
+6.UMD = NAMESPACE + AMD + CJS = ES 6
+
+
+only two design patterns are used in development
+
+1.CJS - Common JS =  namespace + amd
+2.ES 6 Module design pattern  = amd + cjs
+
+CJS ; implemented inside node js. node supports commonjs by default.
+
+I can organize the code , based on these patterns, but what about runtimes?
+  js runtime never suppport these patterns directly then each design pattern is lib.
+
+ Loaders : it is simple js lib to help link and load js files.
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+lets start cjs first;
+......................
+
+cjs is built in node js.
+node supports cjs in built. no separate loader or linker is required
+but if you run cjs code on browsers , we need loaders.
+
+
+Common js:
+
+1.How to share code
+  exports
+  module.exports
+
+2.How to link files
+  require()
+
+
+lab:
+
+use case how to link files;
+
+common js provides an api called "require(fileName)"
+ -it is in built function provided by node
+ -require function takes file name as parameter without .js extension.
+ -require function  return value.
+
+
+eg:
+  function require(fileName){
+    ......
+   return somevalue;
+ }
+
+How to share code?
+
+code could be
+
+-variable declaration having any literals(strings,numbers,booleans,objects,functions...)
+-function declaration
+-class declaration
+
+
+code can be shared in cjs via two containers.
+
+exports
+module.exports.
+
+what is exports?
+
+"exports" is just a variable.
+"exports" variable is implemented inside require() function
+
+function require(fileName){
+   let exports={};
+    ......
+   return exports;
+ }
+exports value by default is empty literal object.
+let res=require('./fileName');
+res ==== {}
+'
+
+
+function require(fileName){
+   let exports={};
+   exports.greet = 'Hello'
+    ......
+   return exports;
+ }
+
+index.js
+//. - current dir, mylib is js file to be linked
+// let res = require('./mylib')
+
+// console.log(res)
+// console.log(res.greet)
+// console.log(res.name)
+// console.log(res.isActive)
+const { greet, name, isActive, skills, score, sayHai, address } = require('./mylib')
+const { log } = console;
+log(greet)
+log(name)
+log(isActive)
+log(skills)
+log(score);
+log(sayHai())
+log(address.city)
+
+
+src/mylib.js
+
+//object augmentation on exports variable
+exports.greet = 'Hello'
+exports.name = 'Subramanian'
+exports.isActive = true;
+exports.score = 10;
+exports.sayHai = function () {
+    return 'Hai';
+}
+exports.address = {
+    city: 'coimbatore'
+}
+exports.skills = ['java', 'javascript', 'node', 'microservices']
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+module.exports
+
+-similar to exports
+-dont pack code inside literal object
+-it returns code as it is
+ if code is function, it returns function.
+ if code is variable , it returns variable
+
+
+function require(fileName){
+   let message='hello'
+
+   //if exports ----use literal object
+   else
+   module.exports =message;
+
+   return module.exports   
+}
+
+-exports can return mulitple items at the same time
+-module.exports can return only one thing at the time.
+
+
+module.exports is usefull
+
+ -to return classes
+ -to return functions
+ -to return arrays
+ -to return objects
+
+any thing but only one.
+
+
+const OrderService = require('./OrderService');
+
+console.log(OrderService)
+let { findAll } = new OrderService();
+console.log(findAll())
+
+class OrderService {
+    constructor() {
+        console.log('Order service is being intialized')
+    }
+    findAll() {
+        return 'findAll'
+    }
+    save(order) {
+        console.log(order);
+        return 'save'
+    }
+}
+module.exports = OrderService;
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+How to return objects using module.exports? 
+How to return from sub dir
+
+src/services
+src/data
+src/apis
+//way -1
+// const PRODUCTS = [
+//     {
+//         id: 1,
+//         qty: 10,
+//         price: 100
+//     },
+//     {
+//         id: 2,
+//         qty: 20,
+//         price: 600
+//     }
+// ];
+// module.exports = PRODUCTS;
+
+//way-2
+module.exports = [
+    {
+        id: 1,
+        qty: 10,
+        price: 100
+    },
+    {
+        id: 2,
+        qty: 20,
+        price: 600
+    }
+];
+
+const PRODUCTS = require('../mock-data/products')
+
+class ProductService {
+    constructor() {
+        console.log('Product Service is being intialized')
+    }
+    findAll() {
+        return PRODUCTS;
+    }
+    save() {
+        return 'save'
+    }
+}
+module.exports = new ProductService();
+
+const { findAll, save } = require('./services/ProductService');
+
+const {log} = console;
+
+findAll().forEach(product => console.log(product));
+findAll().forEach(product => log(product));
+//looks like java method refence syntax.
+findAll().forEach(log);
+
+
+
+
+
+
+
+
+
+
+
+
+
