@@ -12,4 +12,4 @@ class OrderService {
         return 'save'
     }
 }
-module.exports = OrderService;
+module.exports = OrderService();

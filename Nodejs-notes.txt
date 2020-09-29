@@ -271,11 +271,1005 @@ findAll().forEach(product => console.log(product));
 findAll().forEach(product => log(product));
 //looks like java method refence syntax.
 findAll().forEach(log);
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Lab:
+
+Build  TODO Application using commonjs
+
+-list of todos -array
+-add new todo
+-update existing todo
+-remove completed todo
+-findtodo by status- completed,ongoing
+
+application should be modular, you can you use mock data of your choice.
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Blocking IO And Non blocking IO:   Sync and Async Programming
+..............................................................
+
+
+
+Blocking IO:
+
+Input/output (IO) refers to interaction with devices such as a hard drive, network or database. 
+
+Generally anything that is not happening in the CPU is called IO.
+
+When you call an API that requests data from IO, you will not get a response instantly, but with some delay. This delay can be very small for requesting a file on a hard drive, and much longer when requesting data from a network. 
+
+This is because the data you request from IO devices has to travel longer to the caller. For instance:
+A file stored on a hard drive must be transferred through SATA cables and main board buses to the CPU
+
+The data from a network resource located on a server far away must travel through network cables, routers and eventually the network interface card (NIC) in your computer to the CPU.
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Calling an API that requests data from IO will cause the running thread to “block”, i.e. 
+
+it is waiting until the requested data has returned to the caller.
+
+When a thread is blocked in Linux, it will be put in a Sleep state by the kernel until data has returned to the caller
+
+Threads in sleep state immediately give up its access to the CPU, so to not waste CPU time.
+
+
+After IO is ready, the thread is taken out of the Sleep state and put in Runnable state.
+
+Threads in this state are eligible to be executed on the CPU again.
+
+The thread scheduler will put the thread on a CPU when one is available. 
+
+The process of taking threads on and off the CPU is called context switching.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Why non-blocking IO?
+
+The main benefit of non-blocking IO is that we need "less threads" to handle the same amount of IO requests.
+
+When multiple calls to IO are done using blocking IO, for each call a new thread is created. 
+
+A thread costs around 1MB, and there are some costs due to context switching. 
+
+If you have a web server that handles 50k connections per second,
+
+a thread per connection can be quite expensive.
+
+
+Types of blocking
+  There are actually two types of thread blocking:
+
+1.CPU-bound blocking
+2.IO-bound blocking
+
+CPU-bound blocking
+In this case the thread gets blocked because of some CPU intensive task it performs takes more time than “instantly”. 
+
+For example when generating a bunch of prime numbers or rendering a 3d model. With CPU-bound blocking the thread is blocked because it’s actively being executed on the processor.
+
+
+IO-bound blocking
+
+Here, the thread gets blocked because it has to wait for data to return from an IO source, such as a network or a hard drive. 
+
+The kernel will notice that there is no data available from IO and will therefore put the thread in some “sleep” state. Hence, with IO-bound blocking the thread is not¹ actively being executed on the processor.
+
+
+Non-blocking IO
+
+APIs that use blocking IO will block the thread until data from IO has returned.
+
+ So what happens when you call a non-blocking API? Very well, it returns instantly and will not block the thread. 
+
+This means the thread can immediately continue executing the code that comes after calling the API.
+
+When data has returned from IO, the caller will be notified that the data is ready. 
+
+This is generally done with a callback function that has access to the returned data.
+
+
+Network IO and sockets:
+
+To understand how non-blocking IO works under the hood we first need some understanding of how IO works at low level. 
+
+A common use case for non-blocking IO is network IO, so it is best explained in this context. 
+
+
+At kernel level a socket is used as an abstraction to communicate with a NIC.
+
+Socket is entry and exit point of data transmission from hardware to os
+
+
+
+At kernel level a socket is used as an abstraction to communicate with a NIC.
+
+Socket is entry and exit point of data transmission from hardware to os
+
+
+ This socket takes care of reading and writing data to/from the NIC, which in turn sends the data over the UTP cable on its way to the internet. 
+
+For example, if you go to a URL in your browser; at low level the data in your HTTP request is written to a socket using the send(2) system call. 
+
+When a response is returned, the response data can be read from that socket using the recv(2) 
+ system call.
+ The important thing to understand here is that when data has returned from network IO, it is ready to be read from the socket.
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Blocking are implemented at os level using os socket apis.
+ eg : send and recv ------->are blocking apis
+
+if any language uses these api as sys call under hood , those api are blocking apis
+
+if you take java
+
+ readFile()---------send()------>socket-------|
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Non blocking apis are provided by os only.Where pl just call those apis
+........................................................................
+
+flow:
+
+Request1- application----select--------|kernal adds fd0 to watchlist -----devices
+  <------------------------------------------------------------
+
+Request2- application----select--------|kernal adds fd1 to watchlist ---device
+
+Request3- application----select--------|kernal adds fd2 to watchlist --------device
 
 
 
 
+Most non-blocking frameworks use an infinite loop that constantly checks (polls) if data is returned from IO.
 
+This is often called the event loop. 
+
+An event loop is literally a while(true) loop that in each iteration will check if data is ready to read from a network socket. 
+
+Technically, sockets are implemented as file descriptors (FD) on UNIX systems.
+
+It is therefore better to say that a FD is checked for ready data. 
+
+The list of FDs that you want to check for ready data is generally called the interest list.
+
+
+Operatings systems provide event loop construct for making non blocking io:
+
+
+Let’s zoom a bit in on the event loop:
+......................................
+
+ Each (major) operating system provides kernel level APIs to help create an event loop.
+
+In Linux there is epoll or io_uring,
+BSD uses kqueue 
+Windows has IOCP.
+Each of these APIs is able to check FDs for ready data with a computational complexity of around.
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+What is Node.js?
+
+Node.js is a platform to build non blocking io(async io) applications using javascript.
+
+Node.js was created to build javascript server side io / network io applications.
+
+History node.js:
+
+node.js was inspired from nginx webserver(which is nonblocking httpserver).
+
+node.js built on google v8 javascript engine.
+
+Ryan Dhal who created node.js who decided to provide network io/fs io apis on js language.
+
+Ryan Dhal who provided extra api for io operations inside js language , since js already supports non blocking features.
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+How node.js bridges non blocking io with os?
+
+with help of libuv.
+
+
+libuv:
+
+It is platform abstraction lib
+
+libuv is a multi-platform support library with a focus on asynchronous I/O.
+
+Components of node.js
+......................
+
+1.v8 - to run javascript 
+2.libuv - multi platform io event loop abstraction lib.
+
+
+Points:
+
+1.application code is written using js 
+2.js high level apis is mapped with javascript apis
+3.js code is mapped with libuv and other libs with help of "C++"
+4.other apis like openssl are provided as a lib which bound with high level javascript api.
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+How nodjs implements async io notification and how it respond , how data we get it?
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Non blocking implementation:
+
+non blocking apis are event driven,handler based,bound with low level apis.
+
+non blocking apis are provided by node and libvu,os
+
+console.log is not non blocking api.
+
+how to know?
+
+refer node.js doc
+
+classification of non blocking api
+
+1.timers
+2.io apis
+   file system
+   network io
+     -tcp,http.......
+
+javascript provides way(styles) of writing nonblocking
+.......................................................
+
+1.callback style - this is core
+2.promise style - abstraction of callbacks
+3.async ....await style
+
+
+callback /handlers : 
+-function, 
+-can take args,return values
+-function is passed as parameter to non blocking apis : Registration.
+  function is registered for notification for events with high level async apis.
+
+1.timers :
+
+settimeout
+setinterval
+
+//non blocking apis
+
+//blocking api
+const hi = () => console.log('hai')
+
+const sayHello = handler => {
+    //non blocking api ;timer 
+    //register a with timer event within event queue
+    setTimeout(handler, 5000);
+};
+hi();
+sayHello(() => {
+    console.log('hey , how are you?')
+});
+sayHello(() => {
+    console.log('hey , how are you?')
+});
+hi();
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//data return in async ways
+
+const { log } = console;
+
+const delay = handler => {
+    //once timeout return data back to callback function
+    let fakeUser = {
+        id: 1,
+        name: 'admin'
+    };
+    //syntax -1
+    // setTimeout(handler, 5000, fakeUser)
+    //syntax-2
+    setTimeout(() => {
+        log('timeout happens')
+        handler(fakeUser)
+    }, 5000)
+};
+delay((fakeUser) => console.log(fakeUser))
+delay(fakeUser => log(fakeUser))
+delay(log);
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+//emit timer event periodically 
+const { log } = console;
+const hearBeat = hanlder => {
+    let timerId = setInterval(hanlder, 1000, 'hello');
+    setTimeout(() => {
+        log('Stopping interval')
+        clearInterval(timerId)
+    }, 5000)
+
+};
+
+function start() {
+    hearBeat(now => log(now));
+}
+start();
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+callback chaining, nested callbacks:
+.....................................
+
+The output of one callback will be input to another callback.
+
+//async composition; callback nesting;the out put of one callback will be input to next on
+
+//any biz logic have two things; success, failure.
+//two callbacks- one for success and another for failure
+//resolve-success, reject-failures
+const { log } = console;
+
+const getUser = (resolve, reject) => {
+    //biz logic
+    let fakeUser = {
+        id: 2,
+        name: 'admin'
+    }
+    //fakeUser = null;
+    let errors = 'User not found'
+    if (fakeUser) {
+        setTimeout(resolve, 100, fakeUser)
+    } else {
+        setTimeout(reject, 100, errors)
+    }
+};
+
+const login = (user, resolve, reject) => {
+    let status = 'Login Successful';
+    let errors = 'Login failed';
+    if (user.name === 'admin') {
+        setTimeout(resolve, 100, status)
+    }
+    else {
+        setTimeout(reject, 100, errors)
+    }
+};
+
+const showPage = (status, resolve, reject) => {
+    let spage = 'You are admin';
+    let fpage = 'You are guest';
+    if (status === 'Login Successful') {
+        setTimeout(resolve, 100, spage)
+    }
+    else {
+        setTimeout(reject, 100, fpage)
+    }
+};
+
+
+
+function startApp() {
+
+    getUser(fakeUser => {
+        log('getuser is called')
+        //log(fakeUser);
+        login(fakeUser, response => {
+            log('login method is called!!');
+            showPage(response, spage => {
+                log('show page is called');
+                log(spage)
+            }, fpage => log(fpage))
+
+        }, error => {
+            log(error);
+        })
+
+    }, error => log(error))
+
+}
+startApp()
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+callback hell;
+.............
+
+  getUser(fakeUser => {
+        log('getuser is called')
+           login(fakeUser, response => {
+            log('login method is called!!');
+            showPage(response, spage => {
+                log('show page is called');
+                log(spage)
+            }, fpage => log(fpage))
+
+        }, error => {
+            log(error);
+        })
+
+    }, error => log(error))
+
+Questions:
+
+1.Whether this is able to understand quickly
+2.Whether this code is able to debug
+3.Whehter this code is scalable?
+4.whether this code is maintaiable?
+
+
+
+
+  "No" : This is what we call as "Callback hell".
+
+The way we write the code is called callback hell
+
+fs.readdir(source, function (err, files) {
+  if (err) {
+    console.log('Error finding files: ' + err)
+  } else {
+    files.forEach(function (filename, fileIndex) {
+      console.log(filename)
+      gm(source + filename).size(function (err, values) {
+        if (err) {
+          console.log('Error identifying file size: ' + err)
+        } else {
+          console.log(filename + ' : ' + values)
+          aspect = (values.width / values.height)
+          widths.forEach(function (width, widthIndex) {
+            height = Math.round(width / aspect)
+            console.log('resizing ' + filename + 'to ' + height + 'x' + height)
+            this.resize(width, height).write(dest + 'w' + width + '_' + filename, function(err) {
+              if (err) console.log('Error writing file: ' + err)
+            })
+          }.bind(this))
+        }
+      })
+    })
+  }
+})
+
+
+callback hell is other wise called as doom of pyrbid.
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+///////////////////////////////////////////////////////////////////////////////////////////
+
+How to write better callback programming /async/non blocking ? or How to avoid callback hell?
+
+
+
+In 2005, JQUERY team started with working complex callback patterns, they found callback
+hell problem.
+
+They proposed a  Design pattern to write better callback programming(Async) programming.
+
+  "Promise".
+
+Promise is design pattern which hides complexity of callback patterns
+
+
+SInce Promise is design pattern, many people have implemented Promise design pattern.
+
+1.JQuery -first promise implementation
+2.many libs and frameworks
+
+2012 E6 Committee introduced promise design pattern  as  "Promise" Object  in javascript.
+
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Promises and non blocking,async and callback hell issues:
+.........................................................
+
+features of Promise Object:
+
+1.Promise by deafult is Async. Which implements timer api with 0 ms .
+
+Promise can be used with any async callback based implementations.
+
+
+
+Promise Implemenation:
+
+1. Create Promise Object from Promise contructor
+2. Create Promise object from factory apis 
+
+Promise object methods:
+1.then - success
+2.catch - errors
+3.finally - clean up
+4.resolve
+5.reject
+6.all
+7.race
+
+
+
+
+Lets code using Promise
+
+Promise Object creations:
+
+1.factory apis.
+ resolve
+ reject
+ both
+
+callback hell and promises:
+..............................
+//Promise Object creation, handle succcess and resolve.
+
+const { log } = console;
+//callback version
+const sayHello = (callback) => setTimeout(callback, 1000, 'Hello!!!');
+sayHello(response => log(response))
+//promise version 
+//promise does not take any callback as parameter
+//results are captured by then and catch methods of Promise Object
+
+const sayHai = () => {
+    //send only success
+    return Promise.resolve('Hello Promise');
+};
+const getError = () => {
+    return Promise.reject('something went wrong')
+}
+
+///some biz logic
+const validate = (userName = 'admin', password = 'admin') => {
+    if (userName === 'admin' && password === 'admin') {
+        return Promise.resolve('Login success')
+    } else {
+        return Promise.reject('Login failed')
+    }
+}
+
+
+console.log('start')
+// let mypromise = sayHai();
+// mypromise.then(response=>log(response))
+//builder pattern /fluent pattern; 
+
+sayHai()
+    .then(response => log(response)) //succces/resolve
+
+getError()
+    .then(response => log(response))
+    .catch(error => log(error));
+
+validate()
+    .then(response => log(response))
+    .catch(error => log(error));
+
+
+validate('foo','foo')
+    .then(response => log(response))
+    .catch(error => log(error));
+
+console.log('end')
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//promise constructors ; Promise constructors are used to convert existing callback
+//based programming
+
+//new Promise(callbackfunction(res,reject){logic});
+
+const { log } = console;
+
+const validate = (userName = 'admin', password = 'admin') => {
+    return new Promise((resolve, reject) => {
+        if (userName === 'adminl̥' && password === 'admin') {
+           //return status with promise , convert callback based into promise          
+            setTimeout(resolve, 1000, 'Login Success')
+        } else {
+            setTimeout(reject, 1000, 'Login Failed')
+
+        }
+    });
+
+}
+
+function startApp() {
+    validate()
+        .then(log)
+        .catch(log);
+}
+startApp();
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+const { log } = console;
+
+const getUser = () => {
+    //biz logic
+    let fakeUser = {
+        id: 2,
+        name: 'admin'
+    }
+    //fakeUser = null;
+    let errors = 'User not found'
+    if (fakeUser) {
+        return Promise.resolve(fakeUser);
+    } else {
+        return Promise.reject(errors);
+    }
+};
+
+const login = user => {
+    let status = 'Login Successful';
+    let errors = 'Login failed';
+    if (user.name === 'admin') {
+        return Promise.resolve(status);
+    }
+    else {
+        return Promise.reject(errors);
+    }
+};
+
+const showPage = status => {
+    let spage = 'You are admin';
+    let fpage = 'You are guest';
+    if (status === 'Login Successful') {
+        return Promise.resolve(spage);
+    }
+    else {
+        return Promise.reject(fpage);
+    }
+};
+
+
+
+function startApp() {
+
+    // getUser(fakeUser => {
+    //     log('getuser is called')
+    //     //log(fakeUser);
+    //     login(fakeUser, response => {
+    //         log('login method is called!!');
+    //         showPage(response, spage => {
+    //             log('show page is called');
+    //             log(spage)
+    //         }, fpage => log(fpage))
+
+    //     }, error => {
+    //         log(error);
+    //     })
+
+    // }, error => log(error))
+
+    getUser()
+        .then(user => {
+            log('get user is called');
+            //login
+            login(user).then(status => {
+                log('Login is called');
+                //show page
+                showPage(status).then(page => {
+                    log('show page is called')
+                    log(page)
+                }).catch(err => log(err));
+
+            }).catch(err => log(err));
+        })
+        .catch(error => {
+            log(error)
+        })
+        .finally(() => log('done!!'));
+
+    //simple version
+
+    getUser().then(user => {
+        log('get user is called');
+        return login(user);
+    }).then(status => {
+        log('Login is called');
+        return showPage(status)
+    }).then(page => {
+        log('show page is called')
+        log(page);
+    }).catch(error => {
+        log(error)
+    }).finally(() => log('done!!'));
+    //single body ; only return
+    getUser()
+        .then(user => login(user))
+        .then(status => showPage(status))
+        .then(log)
+        .catch(log)
+        .finally(() => log('done!!'));
+
+    getUser()
+        .then(login)
+        .then(showPage)
+        .then(log)
+        .catch(log)
+        .finally(() => log('done!!'));
+
+
+}
+startApp()
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+async and await ; es 7 keywords
+
+
+Promise Hell: Promise has limitions;
+......................
+
+1.Promise is still  complex when you start scalling complex async operations.
+
+2.Which is not readable ,which uses lot of then, catch blocks
+
+In order to write even simple complex async work flows ES 7 introduced
+a concept called "async await" keywords
+
+
+ It is simplest pattern of Promises.
+ It is promise driven only.
+
+         "Sync style of Async Code" 
+
+async key must be used with function declaration.
+await is used to pause async calls
+
+
+getUser()
+    .then(login)
+    .then(log)
+    .catch(log)
+    .finally(() => console.log('login done'))
+
+
+//async .... await keywords
+//async key must be part of function declaration; async functions
+//await key must be used for promise invocation;
+
+const validate = (userName = 'admin', password = 'admin') => {
+    if (userName === 'admin' && password === 'admin') {
+        return Promise.resolve('Login success');
+
+    } else {
+        return Promise.reject('Login failed')
+    }
+}
+
+async function startApp() {
+    //promise version
+    // validate()
+    //     .then(res => console.log(res))
+    //     .catch(err => console.log(err))
+    //     .finally(() => console.log('done'))
+    //async
+    try {
+        const res = await validate();
+        console.log(res);
+    }
+    catch (err) {
+        console.log('error')
+    }
+    finally {
+        console.log('done!!!')
+    }
+}
+startApp();
+/////////////////////////////////////////////////////////////////////////////////
+const { log } = console;
+
+const getUser = () => {
+    //biz logic
+    let fakeUser = {
+        id: 2,
+        name: 'admin'
+    }
+    //fakeUser = null;
+    let errors = 'User not found'
+    if (fakeUser) {
+        return Promise.resolve(fakeUser);
+    } else {
+        return Promise.reject(errors);
+    }
+};
+
+const login = user => {
+    let status = 'Login Successful';
+    let errors = 'Login failed';
+    if (user.name === 'admin') {
+        return Promise.resolve(status);
+    }
+    else {
+        return Promise.reject(errors);
+    }
+};
+
+const showPage = status => {
+    let spage = 'You are admin';
+    let fpage = 'You are guest';
+    if (status === 'Login Successful') {
+        return Promise.resolve(spage);
+    }
+    else {
+        return Promise.reject(fpage);
+    }
+};
+
+const initApp = async () => {
+    try {
+        const user = await getUser();
+        const status = await login(user);
+        const page = await showPage(status);
+        log(`${user.name} ${status} ${page}`)
+    }
+    catch (err) {
+        console.log('error')
+    }
+    finally {
+        console.log('done!!!')
+    }
+};
+initApp();
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+const TODOS = require('../mock-data/todos');
+
+class TodoService {
+
+    //blocking version; 
+    findAllBlocking() {
+        return JSON.stringify(TODOS);
+    }
+    //non blocking version; callback based
+    findAllNonBlockingCB(handler) {
+        setTimeout(handler, 5000, JSON.stringify(TODOS));
+    }
+    //non blocking version; callback based
+    findAllNonBlockingPromise() {
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, 5000, JSON.stringify(TODOS));
+        });
+    }
+
+
+}
+module.exports = new TodoService();
+
+const { findAllBlocking, findAllNonBlockingCB, findAllNonBlockingPromise } = require('./services/TodoService');
+const { log } = console;
+
+
+async function startApp() {
+    //call blocking version
+    // const todos = findAllBlocking();
+    // log(todos)
+    //findAllNonBlockingCB(todos => log(todos));
+    //promise 
+    // findAllNonBlockingPromise()
+    //     .then(todos => log(todos))
+    //     .catch(err => log(err))
+    //     .finally(() => log('done'))
+    const todos = await findAllNonBlockingPromise();
+    log(todos);
+
+}
+startApp();
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+node built in objects;
+
+node supports all js objects- string,number,object,math,date,json,promise,array........
+
+node does not support dom objects - window,document,history...
+
+node can execute js code via 
+
+->node REPL
+ node
+->node command
+
+in browser window is super object
+in node process is super object
+
+node command;
+
+node jsfile.js
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+Node and Modularity:
+....................
+
+node is highly modular platform, you can write modular applications
+node by default supports cjs module system.
+
+in node module is called "node module'
+
+
+Types of modules:
+
+1.Custom module
+  Written you , eg: OrderController....
+  exports,module.exports
+2.in built modules
+   Modules are supplied by node , which are supplied during node installation.
+3.Third party modules
+   provided by third parties, like frameworks,libs etc...
+
+
+
+
+1.node in built modules
+
+1.os module
+2.events module
+3.file system module
+4.path
+5.http module
+
+os
+
+//node built in modules; os module
+const {cpus,arch} = require('os');
+
+console.log('Total CPUs')
+console.log(cpus());
+console.log('Arch ',arch())
+
+./ vs ''
+.........
+
+ require('./services/TODOService');
+  ->here you can see ./
+  ./ -current dir
+ require('os'); => 
+  -here no ./ 
+
+Why?
+
+Note : if you are java devp, you know the classpath , how it works?
+
+
+
+require('os');
+
+Node internally uses a search algorthim,node always looks the folder called
+ "node_modules" in the current project, if not , then it searches, the node in built 
+installtion folder---c:/pf/node/node_nodules--if it finds it will pick up from there else it will throw error.
+
+require('./services/TODOService');
+   it will lookup in the current dir or sub dirs only.
+
+
+error if there is no module;
+
+
+C:\session\ibm\Sep\nodejs-session\mynode-app>node src/index.js
+internal/modules/cjs/loader.js:800
+    throw err;
+    ^
+
+Error: Cannot find module 'osxx'
+Require stack:
+- C:\session\ibm\Sep\nodejs-session\mynode-app\src\index.js
+[90m    at Function.Module._resolveFilename (internal/modules/cjs/loader.js:797:15)[39m
+[90m    at Function.Module._load (internal/modules/cjs/loader.js:690:27)[39m
+[90m    at Module.require (internal/modules/cjs/loader.js:852:19)[39m
+[90m    at require (internal/modules/cjs/helpers.js:74:18)[39m
+    at Object.<anonymous> (C:\session\ibm\Sep\nodejs-session\mynode-app\src\index.js:2:21)
+[90m    at Module._compile (internal/modules/cjs/loader.js:959:30)[39m
+[90m    at Object.Module._extensions..js (internal/modules/cjs/loader.js:995:10)[39m
+[90m    at Module.load (internal/modules/cjs/loader.js:815:32)[39m
+[90m    at Function.Module._load (internal/modules/cjs/loader.js:727:14)[39m
+[90m    at Function.Module.runMain (internal/modules/cjs/loader.js:1047:10)[39m {
+  code: [32m'MODULE_NOT_FOUND'[39m,
+  requireStack: [
+    [32m'C:\\session\\ibm\\Sep\\nodejs-session\\mynode-app\\src\\index.js'[39m
+  ]
+}
+
+C:\session\ibm\Sep\nodejs-session\mynode-app>
 
 
 
