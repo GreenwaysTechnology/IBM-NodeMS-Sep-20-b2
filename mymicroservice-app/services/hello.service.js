@@ -12,11 +12,12 @@ broker.createService({
     actions: {
         //biz methods
         sayHello() {
-            return 'Hello Moleculer'
+            return 'Hello Moleculer -v1'
         }
 
     }
 });
+
 //start service broker;
 
 function startApp() {
@@ -38,7 +39,7 @@ function startApp() {
 async function initApp() {
     try {
         await broker.start();
-        const response = await broker.call('helloworld.sayHello');
+        const response = await broker.call('v2.helloworld.sayHello');
         console.log(response);
     }
     catch (err) {

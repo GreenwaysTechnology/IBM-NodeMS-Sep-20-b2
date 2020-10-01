@@ -2391,22 +2391,1424 @@ Each node must have an instance of Service Broker.
 
 
 
+Use case : how to create Service broker and start
+
+//Get ServiceBroker function(class)
+const { ServiceBroker } = require('moleculer');
+
+//Create Service Broker object.
+const broker = new ServiceBroker();
+
+
+How write service , how to use that service?
+
+ Service is program, which has biz logic
+
+Service is created 
+
+broker.createService(serivice definition)
+
+service definition is literal object which contains all service configuration.
+
+Service configuration is other wise called "Service schema".
+
+
+How to invoke/call Service methods?
+
+There are many ways
+
+1.By using broker.start method  and broker.call method
+2.By using  REPL cli
+3.By using another service => Service to Service calls
+
+
+//get Service Broker ;
+
+const { ServiceBroker } = require('moleculer');
+
+//create Service Broker instance;
+const broker = new ServiceBroker();
+
+//create helloworld service
+
+broker.createService({
+    name: 'helloworld',
+    actions: {
+        //biz methods
+        sayHello() {
+            return 'Hello Moleculer'
+        }
+
+    }
+});
+//start service broker;
+
+function startApp() {
+
+    //start the broker
+    broker.start()
+        .then(res => {
+            console.log('broker is ready');
+            broker.call('helloworld.sayHello')
+                .then(response => {
+                    console.log('Response  is ready')
+                    console.log(response);
+                })
+                .catch(err => { });
+        })
+        .catch(err => { });
+}
+//startApp();
+async function initApp() {
+    try {
+        await broker.start();
+        const response = await broker.call('helloworld.sayHello');
+        console.log(response);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Use case 2 ; multi methods:
+//get Service Broker ;
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+
+broker.createService({
+    name: 'greeterservice',
+    actions: {
+        //biz methods
+        sayHello() {
+            return 'Hello Moleculer'
+        },
+        sayHai() {
+            return 'Hai Moleculer'
+        },
+        sayGreet() {
+            return 'Greet Moleculer'
+        }
+
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        const hello = await broker.call('greeterservice.sayHello');
+        const hai = await broker.call('greeterservice.sayHai');
+        const greet = await broker.call('greeterservice.sayGreet');
+        console.log(hello,hai,greet);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Use case 3 ; multi service;
+............................
+
+
+//get Service Broker ;
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+broker.createService({
+    name: 'helloservice',
+    actions: {
+        //biz methods
+        sayHello() {
+            return 'Hello Moleculer'
+        }
+
+    }
+});
+
+broker.createService({
+    name: 'haiservice',
+    actions: {
+        //biz methods
+        sayHai() {
+            return 'Hai Moleculer'
+        }
+
+    }
+});
+
+broker.createService({
+    name: 'greeterservice',
+    actions: {
+        //biz methods
+        sayGreet() {
+            return 'Greet Moleculer'
+        }
+
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        const hello = await broker.call('helloservice.sayHello');
+        const hai = await broker.call('haiservice.sayHai');
+        const greet = await broker.call('greeterservice.sayGreet');
+        console.log(hello,hai,greet);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Use case 4 ;passing parameters to service methods
+
+How to pass parameter to Service?
+
+Any Service can take parameter, which type could be any thing: number,string,boolean,array,
+object...
+
+Syntax:
+
+broker.call("serviceName.method",{p1:value1,p2:value2,pn:valueN})
+
+Note: parameters must be encapsulated into an literal object
+
+
+
+How to read args from the service Method?
+
+Parameters are stored inside special object called "Context"
+
+Context Object:
+
+1.Similar to Broker Object
+2.It has all capacity of Broker object
+3.Context object is used inside service definitions , where ever you require broker
+  Object reference.
+
+context object already created, and its refernce is avaiable inside "Service method" as 
+args.
+
+
+
+
+//get Service Broker ;
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+broker.createService({
+    name: 'greeterservice',
+    actions: {
+        //ctx is variable points "Context Object"
+        sayHello(ctx) {
+            console.log(ctx.params);
+            const { message, whom } = ctx.params;
+            //return `${ctx.params.message} ${ctx.params.whom}`
+            return `${message} ${whom}`
+        }
+
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        const hello = await broker.call('greeterservice.sayHello', { message: 'Hello', whom: 'Moleculer' });
+        console.log(hello);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Use case 6 ; Parameter validation; defining extra method behaviours(like do y want to enable caching for that method)..
+..............................
+moleculer provides validation framework for validating incoming parameters.
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+//parameter validation;
+
+broker.createService({
+    name: 'adderservice',
+    actions: {
+        //inject extra behaviour for method add
+        add: {
+            //validation feature
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic via handler method
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return a + b;
+            }
+        }
+    }
+});
+
+
+
+async function initApp() {
+    try {
+        await broker.start();
+        const addResult = await broker.call('adderservice.add', { a: 10, b: 20 });
+        //validation error message call
+        //const addResult = await broker.call('adderservice.add', { a: "10", b: 20 });
+        console.log(addResult);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Use case 7: How to version services
+
+/api/v1/resource
+/api/v2/resource
+
+const { ServiceBroker } = require('moleculer');
+const broker = new ServiceBroker();
+
+broker.createService({
+    name: 'helloworld',
+    version: 1,
+    actions: {
+        //biz methods
+        sayHello() {
+            return 'Hello Moleculer -v1'
+        }
+
+    }
+});
+broker.createService({
+    name: 'helloworld',
+    version: 2,
+    actions: {
+        //biz methods
+        sayHello() {
+            return 'Hello Moleculer -v2'
+        }
+
+    }
+});
+
+async function initApp() {
+    try {
+        await broker.start();
+        //calling versioning service v1.service.actionname
+        let response;
+        response = await broker.call('v1.helloworld.sayHello');
+        console.log(response);
+        response = await broker.call('v2.helloworld.sayHello');
+        console.log(response);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Methods;
+
+ are used to represent a logic .
+
+Types of methods
+
+-public methods
+  public methods are accessiable outside service, other services / other apis can call.
+ public methods are defined inside "action" definition.
+
+-private methods
+ private methods are private to that service only.
+ cant be accessed outside
+ private methods are very usefull for breaking complex biz logic,
+ private methods can be called inside public method for result
+
+
+Use case 8; private methods
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+//parameter validation;
+
+broker.createService({
+    name: 'calculatorservice',
+    actions: {
+        //inject extra behaviour for method add
+        add: {
+            //validation feature
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic via handler method
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return this.add(a, b);
+            }
+        },
+        substract: {
+            //validation feature
+            params: {
+                a: "number",
+                b: "number"
+            },
+            //biz logic via handler method
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return this.substract(a, b);
+            }
+        }
+    },
+    //private methods
+    methods: {
+        add(a, b) {
+            return a + b;
+        },
+        substract(a, b) {
+            return a - b;
+        }
+    }
+});
+
+
+
+async function initApp() {
+    try {
+        await broker.start();
+        let result;
+        result = await broker.call('calculatorservice.add', { a: 20, b: 10 })
+        console.log('Add : ', result);
+        result = await broker.call('calculatorservice.substract', { a: 20, b: 10 })
+        console.log('Substract : ', result);
+
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Service Communication:
+.....................
+
+Two or more services can be communicated.
+
+Types of services:
+
+1.local service
+2.remote service
+3.api service
+
+
+Use case 9; local services
+
+local service;
+  services are created and executed under single service broker
+
+//local service communication
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+broker.createService({
+    name: 'calculatorservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                //call add service;you can use context object
+                const { a, b } = ctx.params;
+                return ctx.call('addservice.add', { a: a, b: b });
+            }
+
+        }
+    }
+});
+
+//back end service , which does computation in back ground.
+broker.createService({
+    name: 'addservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return this.add(a, b)
+            }
+
+        }
+    },
+    methods: {
+        add(a, b) {
+            return a + b;
+        }
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        const result = await broker.call('calculatorservice.add', { a: 10, b: 20 });
+        console.log(result);
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+By using  REPL cli:
+
+>npm install moleculer-repl --save-dev
+.................................................................................................
+
+
+Use case 10; Remote Services;
+
+
+ Services are hosted across the nodes(service brokers)
+
+
+consumer.service.js
+//local service communication
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+broker.createService({
+    name: 'calculatorservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                //call add service;you can use context object
+                const { a, b } = ctx.params;
+                return ctx.call('addservice.add', { a: a, b: b });
+            }
+
+        }
+    }
+});
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        await broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+
+provider.service.js
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker();
+
+//back end service , which does computation in back ground.
+broker.createService({
+    name: 'addservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return this.add(a, b)
+            }
+
+        }
+    },
+    methods: {
+        add(a, b) {
+            return a + b;
+        }
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        await broker.repl();
+        
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+
+if you start calling, you will get the error 
+
+>> ERROR:
+ServiceNotFoundError: Service 'addservice.add' is not found.
+    at ServiceBroker.findNextActionEndpoint (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\service-broker.js:1020:13)
+    at ServiceBroker.call (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\service-broker.js:1069:26)
+    at Context.call (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\context.js:289:23)
+    at Service.handler (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\services\consumer.service.js:17:28)
+    at C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\utils.js:182:22
+    at validateContextParams (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\validators\base.js:72:15)
+    at ServiceBroker.timeoutMiddleware (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\middlewares\timeout.js:35:14)
+    at ServiceBroker.fallbackMiddleware (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\middlewares\fallback.js:29:11)
+    at ServiceBroker.errorHandlerMiddleware (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\middlewares\error-handler.js:14:10)
+    at ServiceBroker.call (C:\session\ibm\Sep\nodejs-session\mymicroservice-app\node_modules\moleculer\src\service-broker.js:1084:31)
+
+why this error?
+
+Because services are running in different nodes / service brokers- distributed services
+
+How the nodes can communicate each other?
+
+We need networking infra structure.
+
+Message Brokers:Transporters:
+
+Transporter is an important module if you are running services on multiple nodes. 
+
+Transporter communicates with other nodes. 
+
+It transfers events, calls requests and processes responses …etc. 
+
+If a service runs on multiple instances on different nodes, the requests will be load-balanced among live nodes.
+
+
+
+Transpoerts:
+............
+
+Built-in transporters
+
+TCP transporter
+NATS Transporter
+Redis Transporter
+MQTT Transporter
+AMQP Transporter
+Kafka Transporter
+NATS Streaming (STAN) Transporter
+
+Service Broker configuration:
+
+let broker =new ServiceBroker();
+Broker is created with default configuration.
+
+We can overload the default configuration based on our needs.
+
+let broker =new ServiceBroker({
+  key:value
+});
+
+steps:
+
+1.start any transporter
+
+eg: nats,redis..
+
+docker run -p 4444:4444 nats -p 4444
+
+
+2.transporter configuration in service
+
+const broker = new ServiceBroker({
+    transporter: "nats://nats.server:4444"
+});
+
+3.npm install nats --save
+
+Note if you want any other transporter you have to follow the same steps
+
+steps:
+
+1.start redis server
+docker run  -p 6379:6379  redis
+
+2.install
+npm install ioredis --save
+
+redis:
+transporter: "redis://localhost:6379"
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Registry & Discovery:
+....................
+
+1.Service Registry
+
+ It is mini /small database , key-value pair database, in memory database.
+ Which has all service,actions,event listeners, nodes information.
+
+
+Points:
+1.Every Broker has in built Service Registry
+     Moleculer has built in in memory registry, we can use that registry directly.
+
+2.All services local or remote are registered with service registry as soon you create 
+  service
+3.Molecular has built in registry called LocalDiscoveryRegistry, which is not using third party registry servers
+  like apache zoo keeper,cosule,etcd,eurka....
+
+4.if you want to make other servers as service registry -
+
+    registry: {
+        discoverer: "redis://redis-server:6379"
+    }  
+Dynamic service discovery
+1.Local
+2.Redis
+3.etcd3
+4.Customization
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+Exploring logs of moleculer runtime for service registry information.
+
+[2020-10-01T07:11:06.221Z] INFO  laptop-r2tggfdl-996/REGISTRY: Discoverer: LocalDiscoverer
+This log defins type of registry server
+
+[2020-10-01T07:11:06.786Z] INFO  laptop-r2tggfdl-996/REGISTRY: '$node' service is registered.
+[2020-10-01T07:11:06.788Z] INFO  laptop-r2tggfdl-996/REGISTRY: 'calculatorservice' service is registered.
+
+
+How to change service discovery registry server from LocalDiscover?
+
+
+//local service communication
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker({
+    //nodeID : 'ibmconsumernode',
+    transporter: "nats://localhost:4444",
+    registry: {
+        discoverer: "redis://localhost:6379"
+    } 
+});
+
+broker.createService({
+    name: 'calculatorservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                //call add service;you can use context object
+                const { a, b } = ctx.params;
+                return ctx.call('addservice.add', { a: a, b: b });
+            }
+
+        }
+    }
+});
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        await broker.repl()
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker({
+    //nodeID:'ibmprovidernode',
+    transporter: "nats://localhost:4444",
+    registry: {
+        discoverer: "redis://localhost:6379"
+    } 
+});
+
+//back end service , which does computation in back ground.
+broker.createService({
+    name: 'addservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return this.add(a, b)
+            }
+
+        }
+    },
+    methods: {
+        add(a, b) {
+            return a + b;
+        }
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        await broker.repl();
+        
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Scalability and High availability ; Load Balancer / fail over
+............................................................
+
+
+Load balancing means , distributing load to different machines in the cluster.
+
+In distributed computing, one server may not be enough to  handle load.
+
+1.Moleculer has several built-in load balancing strategies.
+
+Built-in strategies
+
+ ->RoundRobin strategy
+	This strategy selects a node based on round-robin algorithm.
+   Refer:https://en.wikipedia.org/wiki/Round-robin_DNS
+ ->Random strategy
+	This strategy selects a node randomly.
+ ->CPU usage-based strategy
+	This strategy selects a node which has the lowest CPU usage. Due to the node list can 	be very long, it gets samples and selects the node with the lowest CPU usage from only 	samples instead of the whole node list.
+
+ ->Latency-based strategy
+	This strategy selects a node which has the lowest latency, measured by periodic ping commands. Notice that the strategy only ping one of nodes from a single host.
+
+
+    registry: {
+        strategy: "RoundRobin"
+    }
+
+Demo:
+
+steps:
+
+1.start consumer service
+
+2.start publisher service 2 instances.
+
+3.query publisher from consumer , and see which instance is giving result.
+
+
+
+updated code from the provier side
+const { ServiceBroker } = require('moleculer');
+
+const broker = new ServiceBroker({
+    //nodeID:'ibmprovidernode',
+    transporter: "nats://localhost:4444",
+    registry: {
+        discoverer: "redis://localhost:6379",
+        strategy: "RoundRobin"
+
+    },
+  
+
+});
+
+//back end service , which does computation in back ground.
+broker.createService({
+    name: 'addservice',
+    actions: {
+        add: {
+            params: {
+                a: "number",
+                b: "number"
+            },
+            handler(ctx) {
+                const { a, b } = ctx.params;
+                return `${this.add(a, b) } is coming ${broker.nodeID}`
+            }
+
+        }
+    },
+    methods: {
+        add(a, b) {
+            return a + b;
+        }
+    }
+});
+
+//start service broker;
+async function initApp() {
+    try {
+        await broker.start();
+        await broker.repl();
+        
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+initApp();
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Service inheritance:
+
+Objective:
+
+ lets say i have a service having more methods, that i dont want to give in a service
+ i have service , that service apis , i want to reuse in service apis
+
+Service inheritance comes into place.
+
+In molecular , a service can inherit many services - multi level, for multi level, molcular uses
+a concept called "mixins".
+
+Use case:
+1.if you write any REST Controller.
+2.if you write database operations inside your service.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Parent service must be placed in a separate file, but that be same part of broker object
+
+
+
+
+parent.service.js
+
+module.exports = {
+    name: 'hello',
+    actions: {
+        //define biz api of that service
+        sayHello() {
+            return 'Hello,Molecular'
+        }
+    }
+};
+
+
+child
+
+const { ServiceBroker } = require('moleculer');
+const hello = require('./parent.service');
+const { log } = console;
+const broker = new ServiceBroker();
+
+
+broker.createService({
+    name: 'greeter',
+    mixins: [hello],
+    actions: {
+        sayGreet:{
+            handler(){
+                return 'Greet';
+            }
+        }
+    }
+});
+
+
+async function init() {
+    try {
+        await broker.start();
+        let response;
+        response = await broker.call('greeter.sayHello')
+        log(`${response}`)
+        response = await broker.call('greeter.sayGreet')
+        log(`${response}`)
+
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+Event Driven Architecture:
+
+Broker has a built-in event bus to support Event-driven architecture and to send events to local and remote services.
+
+//how to register events?
+
+events: {
+        "user.created"(ctx) {
+            console.log("Payload:", ctx.params);
+            console.log("Sender:", ctx.nodeID);
+            console.log("Metadata:", ctx.meta);
+            console.log("The called event name:", ctx.eventName);
+
+          );
+        }
+    }
+
+how to send events
+
+send to only consumer.
+
+  ctx.emit("user.created", { user: ctx.params.user });
+  broker.emit("user.created", { user: ctx.params.user });
+
+
+ send to mulitple consumers
+  ctx.broadcast("user.created",{user:ctx.params.user});
+
+
+const { ServiceBroker } = require('moleculer');
+const { log } = console;
+const broker = new ServiceBroker();
+
+//Listener service
+broker.createService({
+    name: 'reportlistner',
+    events: {
+        "user.created"(ctx) {
+            console.log("User created:", ctx.params);
+        }
+    }
+});
+
+broker.createService({
+    name: 'reportsender',
+    actions: {
+        sendReport(ctx) {
+            let user = {
+                id: 1,
+                name: 'subramanian'
+            }
+            ctx.emit("user.created", { entity: user });
+            return `Report has been sent`
+        }
+    }
+});
+
+async function init() {
+    try {
+        await broker.start();
+        let response;
+        response = await broker.call('reportsender.sendReport');
+        log(response);
+
+    }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Molecular Service Types:
+
+
+1.Local Service
+2.Remote Service
+
+.............
+
+1.back end service
+  service which is having application logic.
+
+2.front end service /api gate way service.
+  Service which exposes apis are as "Rest End points".
+
+
+API GATE Implementation:
+Molecular provides lot of modules 
+
+1.moleculer-web
+
+moleculer-web is official gatway module, which is built on express.js
+
+
+Steps:
+
+1.npm install moleculer-web --save
+
+2.Since  moleculer-web is separate module, you have create your own service, convert that service
+  into gatewayservice
 
 
 
 
 
+Rest Service:
+
+Simple:
+
+const { ServiceBroker } = require('moleculer');
+let ApiService = require("moleculer-web");
+
+const { log } = console;
+
+const broker = new ServiceBroker();
+
+
+broker.createService({
+    name:'apigateway',
+    mixins:[ApiService],
+    settings: {
+        routes:[{
+            path:"/api",
+            whitelist: [
+                // Access any actions in 'hello' service
+                "hello.*",
+            ]
+        }]
+    }
+});
+
+
+broker.createService({
+    name: 'hello',
+    actions: {
+        //define biz api of that service
+        sayHello() {
+            return 'Hello,Molecular'
+        }
+    }
+});
+
+async function init() {
+    try {
+        await broker.start();
+        }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+
+url mapping;
+http://localhost:3000/api/hello/sayHello
 
 
 
+Aliases:
+.........
+
+You can use alias names instead of action names. You can also specify the method. Otherwise it will handle every method types.
+
+http://localhost:3000/api/hello/
+
+broker.createService({
+    name:'apigateway',
+    mixins:[ApiService],
+    settings: {
+        routes:[{
+            path:"/api",
+            aliases: {
+               "hello": "hello.sayHello"
+            }
+        }]
+    }
+});
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+METHOD Name mapping ; by default GET METHOD.
+.........................................
+
+
+broker.createService({
+    mixins: [ApiService],
+
+    settings: {
+        routes: [{
+            aliases: {
+                "GET users": "users.list",
+                "GET users/:id": "users.get",
+                "POST users": "users.create",
+                "PUT users/:id": "users.update",
+                "DELETE users/:id": "users.remove"
+            }
+        }]
+    }
+});
+
+Dynamic path; path parameter ; /:id
+/api/hello/1
+
+const { ServiceBroker } = require('moleculer');
+const ApiService = require("moleculer-web");
+
+
+const broker = new ServiceBroker();
+
+// broker.createService({
+//     name: 'apigateway',
+//     mixins: [ApiService],
+//     settings: {
+//         routes: [{
+//             path: "/api",
+//             whitelist: [
+//                 // Access any actions in 'hello' service : url mapping policy
+//                 "hello.*",
+//             ]
+//         }]
+//     }
+// })
+
+//alise mapping
+// broker.createService({
+//     name:'apigateway',
+//     mixins:[ApiService],
+//     settings: {
+//         routes:[{
+//             path:"/api",
+//             aliases: {
+//                "hello": "hello.sayHello"
+//             }
+//         }]
+//     }
+// });
+
+
+broker.createService({
+    name:'apigateway',
+    mixins:[ApiService],
+    settings: {
+        routes:[{
+            path:"/api",
+            aliases: {
+               "GET hello": "hello.sayHello",
+                  // The `name` comes from named param. 
+                // You can access it with `ctx.params.name` in action
+               "GET hello/:name": "hello.sayHelloByName"
+            }
+        }]
+    }
+});
+
+
+broker.createService({
+    name: 'hello',
+    actions: {
+        //define biz api of that service
+        sayHello() {
+            return 'Hello,Molecular'
+        },
+        
+        sayHelloByName(ctx) {
+            return `Hello ${ctx.params.name}`
+        }
+    }
+});
+async function init() {
+    try {
+        await broker.start();
+        }
+    catch (e) {
+        log(e);
+    }
+}
+init();
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+For REST routes you can also use this simple shorthand alias:
+
+broker.createService({
+    mixins: [ApiService],
+
+    settings: {
+        path:'/api',
+        routes: [{
+            aliases: {
+                "REST users": "users"
+            }
+        }]
+    }
+});
+To use this shorthand alias, create a service which has list, get, create, update and remove actions.
 
 
 
+broker.createService({
+    name: 'users',
+    actions: {
+      list: {},
+      get:{}
+      create :{},
+      update:{},
+      remove:{}
+    }
+});
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Data base integreation:
+......................
+
+Moleculer provides orm like implemenation.
+Auto curd generations
+
+Database Adapters
+
+Features:
+
+default CRUD actions
+cached actions
+pagination support
+pluggable adapter (NeDB is the default memory adapter for testing & prototyping)
+official adapters for MongoDB, PostgreSQL, SQLite, MySQL, MSSQL.
+fields filtering
+populating
+encode/decode IDs
+entity lifecycle events for notifications
 
 
 
+$ npm install moleculer-db --save
+
+  Which is nedb adpater , use full testing and prototyping.
+
+if you want to change database, you can.
+
+npm i moleculer-db-adapter-mongo --save
+
+"use strict";
+
+const { ServiceBroker } = require("moleculer");
+const DbService = require("moleculer-db");
+const MongoDBAdapter = require("moleculer-db-adapter-mongo");
 
 
+const broker = new ServiceBroker();
+// Create a DB service for `user` entities
+broker.createService({
+    name: "users",
+
+    // Mixin DB service into (current) 'users' service
+    mixins: [DbService],
+    adapter: new MongoDBAdapter("mongodb://localhost/moleculer-demo"),
+    collection: "users",
+    settings: {
+        idField: 'id',
+        fields: ["id", "username", "name"],
+        entityValidator: {
+            username: "string"
+        }
+    },
+
+    afterConnected() {
+        // Seed the DB with ˙this.create`
+    }
+});
+async function initApp() {
+    await broker.start()
+    for (let i = 1; i <= 10; i++) {
+        await broker.call("users.create", {
+            username: "john-" + i,
+            name: "John Doe -" + i,
+            status: 1,
+            id: i
+        })
+    }
+    const users = await broker.call("users.find");
+    console.log('users', users);
+    const updateduser = await broker.call("users.update", { id: 1, name: "Subramanian" });
+    console.log('updated', updateduser);
+    const removedusr = await broker.call("users.remove", { id: 2 });
+    //no of records affected;
+    console.log('Removed User ', removedusr)
+    
+    console.log(await broker.call("users.find"));
+
+}
+initApp();
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Moleculer Runner
+Moleculer Runner is a helper script that helps you running Moleculer projects. With it you don’t need to create a ServiceBroker instance with options. Instead you can create a moleculer.config.js file in the root of repo with broker options. Then simply call the moleculer-runner in NPM script and it will automatically load the configuration file, create the broker and load the services. Alternatively, you can declare your configuration as environment variables.
+
+
+scalability - no instances 
+we need to run in back ground
+container integration and oracheration - docker,docker-compose
+modularaztion
+REST endpoints-api gate way
+Database integration
+Tracing and meterics integration.
+......
+
+Soultion ; tool;
+
+npm i -g moleculer-cli
+
+
+Modularaztion ;
+
+separate service files
+
+one service broker with all configuration;
+ -service broker configuration is represented in moleculer.config.js
+
+here broker instance is hidden, moleculer runner , which feeds defion to broker
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TODO App using Moleculer;
+
+you can use REST End points
+you can use db.
+CURD operations.
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 
 
